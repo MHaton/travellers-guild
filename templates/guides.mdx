@@ -1,0 +1,23 @@
+import { Template as BaseTemplate } from "@templates/base"
+import config from "/project-config"
+
+export const Template = ({ filename, path, files, meta, children }) => {
+  return (
+    <BaseTemplate
+      filename={filename} 
+      path={path}
+      files={files} 
+      meta={meta} 
+      sidebar={config.sidebars.guides}
+      includeSidebar={true}
+      includeFooterNav={true}
+      >
+      {children}
+    </BaseTemplate>)
+}
+
+export default (props) => <Template {...props} />
+
+{/* Sample data */}
+
+Some sample text.

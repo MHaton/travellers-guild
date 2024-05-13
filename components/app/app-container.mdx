@@ -1,0 +1,77 @@
+import cn from "classnames"
+import { TOC } from "@components/ui/toc"
+import { AppFooter } from "@components/app/app-footer"
+import config from "/project-config"
+
+export const AppContainer = ({
+    path,
+    basePath,
+    heading,
+    title,
+    description,
+    noTitle,
+    noHeading,
+    noFooterNav,
+    includeTOC,
+    keepTOCSpace,
+    includeFeedback,
+    sidebar,
+    pathMetaMap,
+    config,
+    children }) => {
+  const showHeading = !noHeading && heading
+  return <div className={cn(
+      "mx-auto antialiased w-full md:pl-64"
+    )}>
+    <div className="max-w-full px-8">
+      <div className="max-w-screen-xl mx-auto">
+        <div className={cn(
+          "antialiased w-full pb-12 prose prose-neutral prose-quoteless dark:prose-invert max-w-full",
+            {
+              "grid grid-cols-1 lg:grid-cols-4 gap-8 items-start": (includeTOC || keepTOCSpace)
+            }
+          )}>
+          <div className={cn("pt-8", {
+              "lg:col-span-3": (includeTOC || keepTOCSpace)
+            })}>
+            <main>
+              {
+                showHeading && <p class="not-prose text-sm font-semibold text-primary-500 dark:text-primary-400 mb-0">{heading}</p>
+              }
+              { !noTitle &&
+                <h1 className={cn("text-3xl sm:text-4xl font-extrabold text-neutral-900 tracking-tight dark:text-neutral-200 mb-4",
+                {
+                  "mt-2": showHeading,
+                  "mt-12": !showHeading,
+                  "mb-16": !description
+                })}>{title || "Untitled"}</h1>
+              }
+              {description &&
+                <p className="text-neutral-500 text-lg mb-16 mt-0">{description}</p>
+              }
+              <div className="relative w-full max-w-full underline-links">
+                {children}
+              </div>
+            </main>
+            <AppFooter
+              path={path}
+              includeNav={!noFooterNav}
+              includeFeedback={includeFeedback}
+              sidebar={sidebar}
+              pathMetaMap={pathMetaMap}
+              config={config} />
+          </div>
+          { (includeTOC || keepTOCSpace) &&
+            <div className="sticky z-20 top-24 overflow-y-auto hidden lg:block pt-8">
+              {includeTOC &&  <TOC offset={120} /> }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<AppContainer
+  includeTOC
+  sidebar={config.sidebars.guides} />

@@ -1,0 +1,51 @@
+import { getPrevNext } from "@lib/sidebar"
+import { Feedback } from "@components/ui/feedback"
+import config from "/project-config"
+
+export const NextPrevLink = ({ href, title, isPrev }) => {
+  return <div className={!isPrev ? "text-right" : ""}>
+    <p className="text-neutral-500 dark:text-white/50 text-sm mb-1">{isPrev ? "Prev" : "Next"}</p>
+    <a className="text-lg font-semibold hover:text-primary-500 transition" href={href}>{title}</a>
+  </div>
+}
+
+export const AppFooter = ({
+    path = "",
+    includeNav = true,
+    includeFeedback = true,
+    sidebar = [],
+    pathMetaMap = {},
+    config = {}
+  }) => {
+  const { prev, next } = getPrevNext(sidebar, pathMetaMap, path)
+  return (
+    <footer className="flex flex-col gap-12 z-20 antialiased mx-auto plain w-full pt-16 pb-16 mt-16 border-t border-neutral-200 dark:border-white/10">
+        {includeNav &&
+          <div className="grid grid-cols-2">
+            <div>
+              {prev &&
+                <NextPrevLink title={prev.title} href={prev.href} isPrev />
+              }
+            </div>
+            <div className="flex justify-end">
+              {next &&
+                <NextPrevLink
+                  title={next.title}
+                  href={next.href} />
+              }
+            </div>
+          </div>
+        }
+      { includeFeedback &&
+        <div className="flex justify-center not-prose">
+          <Feedback path={path} />
+        </div>
+      }
+      <p className="text-xs text-neutral-500 dark:text-white/50">
+        Except where otherwise noted, content on this site is made available under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">Creative Commons Attribution-Noncommercial-Share Alike 4.0 International license</a>.
+      </p>
+    </footer>
+  )
+}
+
+<AppFooter sidebar={config.sidebars.guides} />

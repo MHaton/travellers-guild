@@ -1,0 +1,148 @@
+import { useState } from "react"
+import { HTTPResponseCodes } from "@lib/http"
+import ChevronDown from "@components/icons/chevrondown"
+import cn from "classnames"
+
+export const getColorClassName = (method) => {
+  switch (method) {
+    case "GET": return "bg-green-100 text-green-600"
+    case "HEAD": return "bg-fuchsia-100 text-fuchsia-600"
+    case "POST": return "bg-sky-100 text-sky-600"
+    case "PUT": return "bg-amber-100 text-amber-600"
+    case "DELETE": return "bg-rose-100 text-rose-600"
+    case "CONNECT": return "bg-violet-100 text-violet-600"
+    case "OPTIONS": return "bg-neutral-100 text-neutral-600"
+    case "TRACE": return "bg-indigo-100 text-indigo-600"
+    case "PATCH": return "bg-orange-100 text-orange-600"
+  }
+}
+
+export const getResponseColorClassName = (code) => {
+  if (code < 300) {
+    return "bg-green-500"
+  } else if (code < 400) {
+    return "bg-orange-500"
+  } else {
+    return "bg-rose-500"
+  }
+}
+
+export const ResponseTag = ({ code }) => {
+  return <div className="not-prose flex flex-row gap-2 items-center">
+      <div className={`${getResponseColorClassName(code)} rounded-full w-2 h-2`}/>
+      <p className="font-medium">{code}: {HTTPResponseCodes[code]}</p>
+    </div>
+}
+
+export const Badge = ({ method }) => {
+  return <span className={`${getColorClassName(method)} font-medium rounded-full px-2 py-1 text-xs w-min select-none`}>{ method }</span>
+}
+
+export const ParamsTable = ({ params }) => {
+  return <table className="w-full text-sm table-auto prose border-collapse mt-2 min-w-full m-0">
+      { params.map(p => {
+        return <tr className="border-b border-neutral-100">
+            <td className="w-48 py-2 font-mono">
+              {p.key}{p.mandatory && <span className="text-rose-500 text-xs ml-0.5 transform -translate-y-1 inline-block select-none">*</span>}
+            </td>
+            <td className="w-48 py-2">
+              {p.type}
+            </td>
+            <td className="py-2">
+              {p.description}
+            </td>
+          </tr>
+      })}
+    </table>
+}
+
+export const RevealButton = ({ open, className, onClick }) => {
+  return <div onClick={onClick} className={`${className} p-1 rounded-md hover:bg-neutral-100 transition cursor-pointer`}><ChevronDown className={cn(
+      "w-6 h-6 text-neutral-600 transform transition", {
+        "-rotate-90": !open,
+        "rotate-0": open,
+      }
+    )} /></div>
+}
+
+export const HTTPAPISpec = ({ method, baseUrl, path, description, parameters, responses }) => {
+  const [isOpen, setOpen] = useState(false)
+  return <div className="pl-12 pr-6 pt-4 pb-4 rounded-md border border-neutral-200 flex flex-col gap-2">
+    <div className="relative flex flex-row gap-4 items-center m-0 not-prose">
+      <RevealButton
+        className="absolute left-[-38px]"
+        open={isOpen}
+        onClick={() => setOpen(o => !o)}
+      />
+      <Badge method={method} />
+      <p className="text-sm"><span className="text-neutral-400">{baseUrl}</span><span className="font-medium text-neutral-900">/{path}</span>
+      </p>
+    </div>
+    <p className="m-0 p-0">{description}</p>
+    { isOpen && <>
+      {(parameters?.path || parameters?.body) &&
+        <div>
+          <p className="font-semibold mt-4">Parameters</p>
+          {parameters?.path && <>
+              <p className="font-medium mt-6 text-sm">Path</p>
+              <ParamsTable params={[parameters.path]} />
+            </>
+          }
+          {parameters?.body?.length > 0 && <>
+              <p className="font-medium mt-6 text-sm">Body</p>
+              <ParamsTable params={parameters.body} />
+            </>
+          }
+        </div>
+      }
+      {responses?.length > 0 &&
+        <>
+          <p className="font-semibold mt-4 m-0 p-0">Responses</p>
+          <table className="w-full text-sm table-auto prose border-collapse min-w-full m-0">
+            { responses.map(r => {
+              return <tr className="border-b border-neutral-100">
+                  <td className="w-48 py-2"><ResponseTag code={r.code}/></td>
+                  <td className="py-2">{r.description}</td>
+                </tr>
+            })}
+          </table>
+        </>
+      }
+      </>
+    }
+  </div>
+}
+
+<div className="prose">
+<HTTPAPISpec
+  method="GET"
+  baseUrl="http://api.example.com" responses={[]}
+  path="greet"
+  description="Greet the user."
+  parameters={{
+    path: {
+      key: "id",
+      mandatory: true,
+      type: "integer",
+      description: "The user ID"
+    },
+    body: [
+      {
+        key: "email",
+        mandatory: true,
+        type: "string",
+        description: "The email of the user"
+      },
+      {
+        key: "name",
+        type: "string",
+        description: "The name of the user"
+      }
+    ]
+  }}
+  responses={[
+      { code: 200, description: "The user was greeted" },
+      { code: 401, description: "The user did not have the permission to be greeted" }
+    ]}
+/>
+</div>

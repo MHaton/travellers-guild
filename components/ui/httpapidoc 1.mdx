@@ -1,0 +1,212 @@
+import { useState } from "react"
+import { HTTPResponseCodes } from "@lib/http"
+import { Tabs, Tab } from "@components/ui/tabbar" 
+import ChevronRight from "@components/icons/chevron-right"
+import cn from "classnames"
+
+export const getColorClassName = (method) => {
+  switch (method) {
+    case "GET": return "bg-green-100 text-green-600"
+    case "HEAD": return "bg-fuchsia-100 text-fuchsia-600"
+    case "POST": return "bg-sky-100 text-sky-600"
+    case "PUT": return "bg-amber-100 text-amber-600"
+    case "DELETE": return "bg-rose-100 text-rose-600"
+    case "CONNECT": return "bg-violet-100 text-violet-600"
+    case "OPTIONS": return "bg-neutral-100 text-neutral-600"
+    case "TRACE": return "bg-indigo-100 text-indigo-600"
+    case "PATCH": return "bg-orange-100 text-orange-600"
+  }
+}
+
+export const getResponseColorClassName = (code) => {
+  if (code < 300) {
+    return "bg-green-500"
+  } else if (code < 400) {
+    return "bg-orange-500"
+  } else {
+    return "bg-rose-500"
+  }
+}
+
+export const ResponseTag = ({ code }) => {
+  return <div className="not-prose flex flex-row gap-2 items-center">
+      <div className={`${getResponseColorClassName(code)} rounded-full w-2 h-2`}/>
+      <p className="font-medium">{code}: {HTTPResponseCodes[code]}</p>
+    </div>
+}
+
+export const Badge = ({ method }) => {
+  return <span className={`${getColorClassName(method)} font-medium rounded-full px-2 py-1 text-xs w-min select-none`}>{ method }</span>
+}
+
+export const ParamsTable = ({ params }) => {
+  return <table className="w-full text-sm table-auto prose prose-neutral dark:prose-invert border-collapse min-w-full m-0">
+      { params.map(p => {
+        return <tr className="border-b border-neutral-100 dark:border-white/20">
+            <td className="w-48 py-2 font-mono">
+              {p.name}{p.required && <span className="text-rose-500 text-xs ml-0.5 transform -translate-y-1 inline-block select-none">*</span>}
+            </td>
+            <td className="w-48 py-2">
+              {p.type}
+            </td>
+            <td className="py-2">
+              {p.description}
+            </td>
+          </tr>
+      })}
+    </table>
+}
+
+export const getRequestBodyExample = (props) => {
+  const example = Object.keys(props).reduce((acc, value) => {
+    return {
+      ...acc,
+      [value]: props[value]?.example
+    }
+  }, {})
+  return JSON.stringify(example, null, 2)
+}
+
+export const getRequestBodySchema = (props) => {
+  return Object.keys(props).reduce((acc, value) => {
+    return [
+      ...acc,
+      {
+        name: value,
+        required: true,
+        type: props[value].type
+      }]
+  }, [])
+}
+
+export const RequestBody = ({ requestBody }) => {
+  const props = requestBody?.content?.["application/json"]?.schema?.properties
+  if (!props) {
+    return <p className="text-neutral-500">No request body.</p>
+  }
+  return <Tabs>
+      <Tab title="Example">
+        <pre>{getRequestBodyExample(props)}</pre>
+      </Tab>
+      <Tab title="Schema" className="pt-4">
+        <ParamsTable params={getRequestBodySchema(props)} />
+      </Tab>
+    </Tabs>
+}
+
+export const RevealButton = ({ open, className, onClick }) => {
+  return <div onClick={onClick} className={`${className} p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-white/20 transition cursor-pointer group`}><ChevronRight className={cn(
+      "w-6 h-6 text-neutral-600 dark:group-hover:text-white/80 transform transition", {
+        "rotate-0": !open,
+        "rotate-90": open,
+      }
+    )} /></div>
+}
+
+export const HTTPAPIDoc = ({ method, baseUrl, path, description, parameters, responses, requestBody }) => {
+  const [isOpen, setOpen] = useState(false)
+  const queryParams = parameters?.filter(p => p.in === "query")
+  const pathParams = parameters?.filter(p => p.in === "path")
+  const formDataParams = parameters?.filter(p => p.in === "formData")
+  const bodyParams = parameters?.filter(p => p.in === "body")
+
+  return <div className="pl-12 pr-6 pt-4 pb-4 rounded-md border border-neutral-200 dark:border-white/20 flex flex-col gap-2 overflow-hidden not-prose">
+    <div className="relative flex flex-row gap-4 items-center m-0 not-prose">
+      <RevealButton
+        className="absolute left-[-38px]"
+        open={isOpen}
+        onClick={() => setOpen(o => !o)}
+      />
+      <Badge method={method} />
+      <p className="text-sm"><span className="text-neutral-400 dark:text-white/80">{baseUrl || ''}</span><span className="font-medium text-neutral-900">{path || ''}</span>
+      </p>
+    </div>
+    <p className="m-0 p-0 mt-2 prose prose-neutral dark:prose-invert">{description}</p>
+    { isOpen && <>
+      {(parameters?.length > 0) &&
+        <div>
+          <p className="font-semibold mt-4 prose prose-neutral dark:prose-invert">Parameters</p>
+          {queryParams?.length > 0 && <>
+              <p className="font-semibold mt-10 text-sm">Query</p>
+              <ParamsTable params={queryParams} />
+            </>
+          }
+          {pathParams?.length > 0 && <>
+              <p className="font-semibold mt-10 text-sm prose prose-neutral dark:prose-invert">Path</p>
+              <ParamsTable params={pathParams} />
+            </>
+          }
+          {bodyParams?.length > 0 && <>
+              <p className="font-semibold mt-10 text-sm prose prose-neutral dark:prose-invert">Body</p>
+              <ParamsTable params={bodyParams} />
+            </>
+          }
+          {formDataParams?.length > 0 && <>
+              <p className="font-semibold mt-10 text-sm prose prose-neutral dark:prose-invert">Form data</p>
+              <ParamsTable params={formDataParams} />
+            </>
+          }
+        </div>
+      }
+      {requestBody && Object.keys(requestBody)?.length > 0 &&
+        <>
+          <p className="font-semibold mt-10 text-sm">Body</p>
+          <RequestBody requestBody={requestBody} />
+        </>
+      }
+      {responses && Object.keys(responses)?.length > 0 &&
+        <>
+          <p className="font-semibold mt-4 m-0 p-0 prose prose-neutral dark:prose-invert">Responses</p>
+          <table className="w-full text-sm table-auto prose  prose-neutral dark:prose-invert border-collapse min-w-full m-0">
+            { Object.keys(responses).map(code => {
+              return <tr className="border-b border-neutral-100 dark:border-white/20">
+                  <td className="w-48 py-2"><ResponseTag code={code}/></td>
+                  <td className="py-2">{responses[code]?.description}</td>
+                </tr>
+            })}
+          </table>
+        </>
+      }
+      </>
+    }
+  </div>
+}
+
+<div className="prose p-8">
+<HTTPAPIDoc
+  method="GET"
+  baseUrl="http://api.example.com"
+  responses={[]}
+  path="/greet"
+  description="Greet the user."
+  parameters={[
+    {
+      "name": "petId",
+      "in": "path",
+      "description": "ID of pet to update",
+      "required": true,
+      "type": "integer",
+      "format": "int64"
+    },
+    {
+      "name": "additionalMetadata",
+      "in": "formData",
+      "description": "Additional data to pass to server",
+      "required": false,
+      "type": "string"
+    },
+    {
+      "name": "file",
+      "in": "formData",
+      "description": "file to upload",
+      "required": false,
+      "type": "file"
+    }
+  ]}
+  responses={{
+    "400": { "description": "Invalid ID supplied" },
+    "404": { "description": "Pet not found" },
+    "405": { "description": "Validation exception" }
+  }}
+/>
+</div>

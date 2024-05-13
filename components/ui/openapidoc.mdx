@@ -1,0 +1,53 @@
+import { useEffect, useState } from "react"
+import { HTTPAPIDoc } from "@components/ui/httpapidoc"
+
+export const OpenAPIDoc = ({ url, path, method, serverIndex }) => {
+  const [spec, setSpec] = useState(undefined)
+  
+  useEffect(() => {
+    if (!url || !path) {
+      return
+    }
+    const run = async () => {
+      const response = await fetch(url)
+      const result = await response.json()
+      if (!result) {
+        return
+      }
+      
+      let baseUrl = ""
+      if (result.schemes?.[0] && result.host && result.basePath) {
+        baseUrl = `${result.schemes[0]}://${result.host}${result.basePath}`
+      } else {
+        baseUrl = result.servers?.[serverIndex || 0]?.url
+      }
+
+      const spec = result.paths?.[path]?.[method.toLowerCase()]
+      if (!spec) {
+        return
+      }
+      setSpec({
+        baseUrl,
+        description: spec?.summary || spec?.description,
+        parameters: spec?.parameters,
+        responses: spec?.responses || {},
+        requestBody: spec?.requestBody || {},
+      })
+    }
+    run()
+  }, [url, path])
+
+  return <HTTPAPIDoc
+    method={method}
+    baseUrl={spec?.baseUrl}
+    path={path}
+    description={spec?.description}
+    parameters={spec?.parameters}
+    responses={spec?.responses}
+    requestBody={spec?.requestBody} />
+}
+
+<OpenAPIDoc
+  url="https://petstore.swagger.io/v2/swagger.json"
+  path="/pet/{petId}/uploadImage"
+  method="POST" />

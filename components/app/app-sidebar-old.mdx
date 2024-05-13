@@ -1,0 +1,103 @@
+import cn from "classnames"
+import Logo from "@components/icons/logo"
+import ChevronRight from "@components/icons/chevron-right"
+import External from "@components/icons/external"
+import config from "/project-config"
+import AppSearch from "@components/app/app-search"
+import { ThemeSwitcher } from "@components/ui/themeswitcher"
+import { normalizePath } from "@lib/sidebar"
+
+export const SidebarLink = ({ title, href, activeSlug, onClick, pages, depth }) => {
+  const active = href === activeSlug
+  const open = activeSlug?.startsWith(href)
+  const external = href && /^https?:\/\//.test(href)
+  return <>
+      <a
+        href={normalizePath(href)}
+        onClick={onClick}
+        {...(external ? {
+          target: "_blank",
+          rel: "noreferrer",
+        } : {})}
+        className={cn(
+            "text-base sm:text-sm px-4 transition",
+          )}>
+            <div
+              style={{ paddingLeft: `${((depth || 0)+1)*0.75}rem` }}
+              className={cn(
+            "border-l py-1.5 transition flex flex-row items-center gap-2",
+            {
+              "text-primary-500 dark:text-primary-400 border-primary-500 font-semibold": active,
+              "text-neutral-700 hover:text-neutral-900 dark:text-white/70 hover:dark:text-white/90 border-neutral-200 dark:border-white/20 hover:border-neutral-500 dark:hover:border-white/50": !active
+            }
+          )}>
+            <div className="flex-grow">
+              {title}
+            </div>
+            { external && <External className="w-5 h-4 text-neutral-400"/>}
+            {pages?.length > 0 && <ChevronRight className={cn(
+                "w-4 h-4 text-neutral-400 transform transition",
+                { "rotate-90": open }
+              )} />}
+          </div>
+        </a>
+        {pages?.length > 0 && open && pages.map(subpage => {
+          return <SidebarLink
+              title={subpage.title}
+              href={subpage.href}
+              activeSlug={activeSlug}
+              onClick={onClick}
+              pages={subpage.pages}
+              depth={(depth || 0) + 1}
+            />
+        })}
+      </>
+}
+
+export const AppSidebarList = ({ sidebar, activeSlug, onClick }) => {
+  return <div className="flex flex-col flex-grow gap-8">
+      {config.sidebars[sidebar].map((item) => {
+        const isSection = item.pages?.length > 0
+        return <div className="flex flex-col">
+            {item.title &&
+              <>
+                { isSection ?
+                  <p className="text-base sm:text-sm font-semibold px-4 mb-2">
+                    {item.title}
+                  </p> : <SidebarLink
+                    title={item.title}
+                    href={item.href}
+                    activeSlug={activeSlug}
+                    onClick={onClick}
+                  />
+                }
+              </>
+            }
+            {item.pages?.map((page) => {
+              return <SidebarLink
+                  title={page.title}
+                  href={page.href}
+                  activeSlug={activeSlug}
+                  onClick={onClick}
+                  pages={page.pages}
+                />
+            })}
+          </div>
+      })}
+    </div>
+}
+
+export const AppSidebar = ({ sidebar, activeSlug, searchData, noHeader, noSearch }) => {
+  return (
+    <div className="z-10 hidden md:block fixed inset-0 w-0 md:w-64 pt-24">
+      <div className="absolute w-full">
+        <div className="h-6 bg-gradient-to-b from-white to-white/0 dark:from-neutral-900 dark:to-neutral-900/0"/>
+      </div>
+      <div className="overflow-y-auto h-full pb-10 pt-[49px] hiddenScrollbar pl-4">
+        <AppSidebarList sidebar={sidebar} activeSlug={activeSlug} />
+      </div>
+    </div>
+  )
+}
+
+<AppSidebar sidebar="guides" activeSlug="/guides/getting-started/variables" />

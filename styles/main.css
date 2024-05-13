@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply antialiased dark:bg-neutral-900;
+}
+
+.underline-links a:not(.unstyled-link) {
+  @apply no-underline font-semibold text-neutral-900 dark:text-white hover:text-neutral-900 dark:hover:text-white/80 hover:border-b-2 border-b border-primary-500 transition;
+}
+
+a:not(.unstyled-link) {
+  @apply no-underline;
+}
+
+.plainDarkLink a {
+  @apply no-underline border-b-0 font-medium !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  scroll-margin-top: 120px !important;
+}
+
+.hiddenScrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hiddenScrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes toast-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(20%);
+    transition: all;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all;
+  }
+}
+
+@keyframes toast-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20%);
+    transition: all;
+  }
+}
+
+.animate-path {
+  stroke-dasharray: 477;
+  stroke-dashoffset: 477;
+  animation: draw 150ms ease-out forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Syntax highlighting */
+
+pre {
+  @apply text-white bg-neutral-900 dark:bg-neutral-800 dark:border dark:border-white/10 overflow-x-auto text-sm px-4 py-3 rounded-md !important;
+  line-height: 1.7142857 !important;
+}
+
+.token.tag,
+.token.class-name,
+.token.selector,
+.token.selector .class,
+.token.function {
+  @apply text-fuchsia-400;
+}
+
+.token.attr-name,
+.token.keyword,
+.token.rule,
+.token.operator,
+.token.pseudo-class,
+.token.important {
+  @apply text-cyan-400;
+}
+
+.token.attr-value,
+.token.class,
+.token.string,
+.token.number,
+.token.unit,
+.token.color {
+  @apply text-lime-300;
+}
+
+.token.punctuation,
+.token.module,
+.token.property {
+  @apply text-sky-200;
+}
+
+.token.atapply .token:not(.rule):not(.important) {
+  color: inherit;
+}
+
+.language-shell .token:not(.comment) {
+  color: inherit;
+}
+
+.language-css .token.function {
+  color: inherit;
+}
+
+.token.comment {
+  @apply text-neutral-400;
+}
+
+.token.deleted:not(.prefix) {
+  @apply relative block -mx-4 px-4;
+}
+
+.token.deleted:not(.prefix)::after {
+  content: "";
+  @apply pointer-events-none absolute inset-0 block bg-rose-400 bg-opacity-25;
+}
+
+.token.deleted.prefix {
+  @apply text-neutral-400 select-none;
+}
+
+.token.inserted:not(.prefix) {
+  @apply block bg-emerald-700 bg-opacity-50 -mx-4 px-4;
+}
+
+.token.inserted.prefix {
+  @apply text-emerald-200 text-opacity-75 select-none;
+}
+
+.loading-dots {
+  @apply inline-flex text-center items-center leading-7;
+}
+
+.loading-dots > span {
+  @apply rounded-full w-1 h-1 !important;
+  animation-name: blink;
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  margin: 0 3px 0 0;
+}
+
+.loading-dots > span:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots > span:nth-of-type(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.subtleUnderline {
+  @apply underline decoration-dotted decoration-neutral-200 dark:decoration-white/20 !important;
+}

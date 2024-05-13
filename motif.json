@@ -1,0 +1,17 @@
+{
+  "titleTemplate": "%s - Travellers Guild",
+  "templates": {
+    "**/*": "base",
+    "guides/**/*": "guides",
+    "guides": "guides"
+  },
+  "head": [
+    "<meta name='viewport' content='width=device-width, initial-scale=1.0' />",
+    "<meta name='og:title' content='Travellers Guild Rules' />",
+    "<meta name='description' content='Join the Travellers Guild today and play in our shared-universe organised play campaign for D&D 5e.' />",
+    "<link rel='shortcut icon' href='https://res.cloudinary.com/djp21wtxm/image/upload/v1662628912/Ribbon_ikm8hi.svg' />",
+    "<link rel='preconnect' href='https://fonts.googleapis.com' />",
+    "<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />",
+    "<link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap' rel='stylesheet' />"
+  ]
+}

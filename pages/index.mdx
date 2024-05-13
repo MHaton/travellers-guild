@@ -1,0 +1,57 @@
+---
+title: Introduction
+noTitle: true
+noHeading: true
+noTOC: true
+keepTOCSpace: true
+noFooterNav: true
+includeFeedback: false
+---
+
+import Heading from "@components/ui/heading"
+import Cover from "@components/ui/cover"
+import LinkCard from "@components/ui/link-card"
+import Book from "@components/icons/book"
+import Bolt from "@components/icons/bolt"
+
+<Heading>Welcome!</Heading>
+
+Welcome to the Travellers Guild Rules website. If you're not already familiar with who we are, you can read more over on [our about page](/about).
+
+On this site you'll find rules for running Travellers Guild games, no matter where you are in the world. On this site, you'll find:
+
+<div className="grid grid-cols-1 sm:grid-cols-2 mt-10 mb-10 gap-10">
+  <LinkCard
+    title="Guild Rules"   
+    href="/rules"
+    description="The rules for playing and running Travellers Guild games."
+    Icon={Book}
+  />
+  <LinkCard
+    title="5e Rule Clarifications"
+    href="/rules/clarifications"
+    description="Details about how specific 5e rules work in our games."
+    Icon={Bolt}
+  />
+    <LinkCard
+    title="Guides"
+    href="/guides"
+    description="Quick step-by-step tutorials for common tasks."
+    Icon={Bolt}
+  />
+    <LinkCard
+    title="Resources"
+    href="/guides/basics/markdoc"
+    description="Free downloadable resources, designed to make life easier!"
+    Icon={Bolt}
+  />
+</div>
+To get started, try following our [New Player Guide]()!
+<Cover
+    title="Join us on Discord!"
+    subtitle="For all event signups, discussion, pictures of adorable animal companions, and general D&D banter, join our community Discord server."
+    cta="Join"
+    ctaHref="https://discord.com/invite/9XrydSgh2U"
+    coverFromColour="from-violet-500"
+    coverToColour="to-purple-900"
+  />

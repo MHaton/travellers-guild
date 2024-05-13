@@ -1,0 +1,23 @@
+import ChevronRight from "@components/icons/chevron-right"
+
+export const PageLink = ({
+  href,
+  iconUrl,
+  children,
+}) => {
+  return (
+    <a
+      href={href}
+      className="flex flex-row p-4 font-medium border border-neutral-200 dark:border-white/20 rounded-lg cursor-pointer hover:bg-neutral-100 dark:hover:bg-white/10 transition items-center gap-4 not-prose"
+    >
+      {iconUrl && (
+        <img
+          className="w-8 h8 rounded-md overflow-hidden flex-none"
+          src={iconUrl}
+        />
+      )}
+      <div className="flex-grow truncate">{children}</div>
+      <ChevronRight className="flex-none text-neutral-600 dark:group-hover:text-white/80 w-5 h-5" />
+    </a>
+  )
+}

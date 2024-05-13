@@ -1,0 +1,19 @@
+import { DateTime } from "luxon"
+
+export default ({ date, title, cover, children }) => {
+  return <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <div>
+      <span className="text-xs px-2 py-1 rounded-full bg-cyan-50 text-cyan-600 font-medium">{DateTime.fromISO(date).toLocaleString(DateTime.DATE_FULL)}</span>
+    </div>
+    <div className="sm:col-span-3 mb-12">
+      <div
+        style={{
+          backgroundImage: `url(${cover})`
+        }}
+        className="h-64 bg-gray-100 rounded-lg bg-cover bg-center"
+      />
+      <h2 className="font-bold text-xl mt-6">{ title }</h2>
+      <div className="prose mt-4">{ children }</div>
+    </div>
+  </div>
+}

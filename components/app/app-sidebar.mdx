@@ -1,0 +1,176 @@
+import { useRef, useState } from "react"
+import cn from "classnames"
+import ChevronRight from "@components/icons/chevron-right"
+import External from "@components/icons/external"
+import { normalizePath } from "@lib/sidebar"
+
+export const getHref = (page) => {
+  return (typeof page === "string") ? page : page?.href
+}
+
+export const isSidebarItemOpen = (item, activeSlug) => {
+  if (!item) {
+    return false
+  }
+  let hasChildInTree = false
+  if (item.pages) {
+    hasChildInTree = item.pages.some(p => isSidebarItemOpen(p, activeSlug))
+    if (hasChildInTree) {
+      return true
+    }
+  }
+  if (!hasChildInTree) {
+    const href = getHref(item)
+    if (href) {
+      return activeSlug?.startsWith(href)
+    }
+  }
+  return false
+}
+
+export const SidebarLink = ({ page, pathMetaMap, activeSlug, onClick, depth, hidden }) => {
+  const [clickOpened, setClickOpened] = useState(undefined)
+  const shouldUseClickOpenState = useRef(false)
+  let title = ""
+  let href = "/"
+  let pages = []
+  if (typeof page === "string") {
+    href = page
+    title = pathMetaMap?.[href]?.title || "Untitled"
+    pages = []
+  } else if (page) {
+    href = page.href
+    title = page.title || pathMetaMap?.[href]?.title || "Untitled"
+    pages = page.pages
+  }
+  const active = href === activeSlug
+  const isExternal = href && /^https?:\/\//.test(href)
+  const isChildOpen = isSidebarItemOpen(page, activeSlug)
+
+  let isOpen
+  if (shouldUseClickOpenState.current) {
+    isOpen = clickOpened
+  } else {
+    isOpen = isChildOpen || clickOpened
+  }
+
+  return <>
+      <a
+        href={href && normalizePath(href)}
+        onClick={() => {
+          {/*if (href) {
+            return
+          }*/}
+          if (!shouldUseClickOpenState.current || isOpen) {
+            shouldUseClickOpenState.current = true
+            if (isOpen) {
+              setClickOpened(false)
+              return
+            }
+          }
+          setClickOpened(o => !o)
+        }}
+        {...(isExternal ? {
+          target: "_blank",
+          rel: "noreferrer",
+        } : {})}
+        className={cn(
+            "text-base sm:text-sm px-4 transition",
+            {
+              "hidden": hidden
+            },
+          )}>
+            <div
+              style={{ paddingLeft: `${((depth || 0)+1)*0.75}rem` }}
+              className={cn(
+            "border-l py-1.5 transition flex flex-row items-center gap-2",
+            {
+              "text-primary-500 dark:text-primary-400 border-primary-500 font-semibold": active,
+              "text-neutral-700 hover:text-neutral-900 dark:text-white/70 hover:dark:text-white/90 border-neutral-200 dark:border-white/20 hover:border-neutral-500 dark:hover:border-white/50": !active
+            }
+          )}>
+            <div className="flex-grow">
+              {title}
+            </div>
+            { isExternal && <External className="w-5 h-4 text-neutral-400"/>}
+            {pages?.length > 0 && <ChevronRight className={cn(
+                "w-4 h-4 text-neutral-400 transform transition",
+                { "rotate-90": isOpen }
+              )} />}
+          </div>
+        </a>
+        {pages?.length > 0 && pages.map(subpage => {
+          return <SidebarLink
+                page={subpage}
+                pathMetaMap={pathMetaMap}
+                activeSlug={activeSlug}
+                onClick={onClick}
+                depth={(depth || 0) + 1}
+                hidden={!isOpen}
+              />
+        })}
+      </>
+}
+
+export const AppSidebarList = ({
+    pathMetaMap,
+    sidebar,
+    activeSlug,
+    onClick }) => {
+  return <div className="flex flex-col flex-grow gap-8">
+      {sidebar?.map((item) => {
+        const isSection = item.pages?.length > 0
+        return <div className="flex flex-col">
+            {item.title &&
+              <>
+                { isSection ?
+                  <p className="text-base sm:text-sm font-semibold px-4 mb-2">
+                    {item.title}
+                  </p> : <SidebarLink
+                    title={pathMetaMap?.[item.href]?.title || "Untitled"}
+                    href={item.href}
+                    activeSlug={activeSlug}
+                    onClick={onClick}
+                  />
+                }
+              </>
+            }
+            {item.pages?.map((page) => {
+              return <SidebarLink
+                  page={page}
+                  pathMetaMap={pathMetaMap}
+                  activeSlug={activeSlug}
+                  onClick={onClick}
+                />
+            })}
+          </div>
+      })}
+    </div>
+}
+
+export const AppSidebar = ({
+    pathMetaMap,
+    sidebar,
+    activeSlug,
+    searchData,
+    noHeader,
+    noSearch }) => {
+  return (<div className="z-10 hidden md:block fixed inset-0 w-0 md:w-64 pt-24">
+      <div className="absolute w-full">
+        <div className="h-6 bg-gradient-to-b from-white to-white/0 dark:from-neutral-900 dark:to-neutral-900/0"/>
+      </div>
+      <div className="overflow-y-auto h-full pb-10 pt-[49px] hiddenScrollbar pl-4">
+        <AppSidebarList
+          sidebar={sidebar}
+          activeSlug={activeSlug}
+          pathMetaMap={pathMetaMap} />
+      </div>
+    </div>
+  )
+}
+
+import sampleConfig from "/project-config"
+
+<AppSidebar
+  sidebar={sampleConfig.sidebars.guides}
+  activeSlug="/guides/quick-start/create-a-project" />
